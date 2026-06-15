@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreatorGem — Find YouTube creators who actually vibes with your brand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050a;
+  --gem:#8b5cf6;
+  --gem2:#22d3ee;
+  --gold:#f59e0b;
+  --text:#faf5ff;
+  --muted:#6b7280;
+  --border:rgba(255,255,255,0.07);
+  --surface:rgba(255,255,255,0.03);
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* SVG WAVE FILTER */
+.svg-filters{position:absolute;width:0;height:0;overflow:hidden}
+
+/* BLACK HOLE CANVAS */
+#bh{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* OVERLAY GRADIENT */
+.overlay{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center, transparent 0%, rgba(5,5,10,0.4) 60%, rgba(5,5,10,0.85) 100%);
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:22px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(24px);
+  background:rgba(5,5,10,0.6);
+  border-bottom:1px solid var(--border);
+}
+.logo{
+  font-family:'Cormorant',serif;
+  font-weight:600;font-size:22px;
+  letter-spacing:0.05em;
+  display:flex;align-items:center;gap:10px;
+}
+.logo-g{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;font-size:20px;
+  background:linear-gradient(135deg,var(--gem),var(--gem2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.8));background-clip:text;
+}
+.nav-pill{
+  background:linear-gradient(135deg,var(--gem),var(--gem2));
+  color:white;border:none;padding:10px 24px;border-radius:100px;
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:500;
+  cursor:pointer;text-decoration:none;
+  transition:opacity .2s,transform .2s;
+  box-shadow:0 0 24px rgba(139,92,246,0.35);
+}
+.nav-pill:hover{opacity:.88;transform:scale(1.03)}
+
+/* HERO */
+.hero{
+  position:relative;z-index:2;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:120px 24px 80px;
+}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(139,92,246,.35);
+  background:rgba(139,92,246,.08);
+  color:#c4b5fd;
+  font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 18px 7px 14px;border-radius:100px;
+  margin-bottom:40px;
+  animation:fadeUp .9s ease both;
+}
+.edot{width:6px;height:6px;background:#a78bfa;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+/* MAIN HEADLINE — editorial font */
+h1{
+  font-family:'Cormorant',serif;
+  font-size:clamp(52px,9vw,110px);
+  font-weight:300;
+  line-height:.95;
+  letter-spacing:-1px;
+  margin-bottom:28px;
+  animation:fadeUp .9s .1s ease both;
+}
+.h1-sm{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(14px,1.8vw,20px);
+  font-weight:300;letter-spacing:.15em;text-transform:uppercase;
+  color:#c4b5fd;display:block;margin-bottom:10px;
+}
+.h1-line2{display:block;font-style:italic;color:var(--text)}
+
+/* VIBES WORD — wavy distortion */
+.vibes-wrap{
+  display:inline-block;
+  position:relative;
+}
+.vibes-text{
+  display:inline-block;
+  font-family:'Cormorant Garamond',serif;
+  font-weight:700;
+  font-style:italic;
+  font-size:clamp(60px,10vw,120px);
+  background:linear-gradient(180deg,#ffffff,#e0e0e0);
+  background-size:100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.8));
+  background-clip:text;
+
+  
+}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+
+/* LETTERS individually for stagger */
+.vl{
+  display:inline-block;
+  animation:waveBob 2.5s ease-in-out infinite;
+}
+.vl:nth-child(1){animation-delay:0s}
+.vl:nth-child(2){animation-delay:.1s}
+.vl:nth-child(3){animation-delay:.2s}
+.vl:nth-child(4){animation-delay:.3s}
+.vl:nth-child(5){animation-delay:.4s}
+.vl:nth-child(6){animation-delay:.5s}
+@keyframes waveBob{
+  0%,100%{transform:translateY(0) skewX(0deg)}
+  25%{transform:translateY(-8px) skewX(-2deg)}
+  75%{transform:translateY(8px) skewX(2deg)}
+}
+
+.h1-rest{
+  display:block;
+  font-family:'Cormorant',serif;
+  font-weight:300;font-style:italic;
+  font-size:clamp(32px,5vw,64px);
+  color:rgba(250,245,255,.7);
+  margin-top:4px;
+}
+
+/* SUBLINE */
+.sub{
+  font-size:clamp(15px,1.8vw,18px);
+  color:var(--muted);
+  max-width:520px;margin:0 auto 48px;
+  line-height:1.75;
+  animation:fadeUp .9s .25s ease both;
+}
+.sub strong{color:#d1d5db}
+
+/* FORM */
+.fw{
+  width:100%;max-width:480px;
+  animation:fadeUp .9s .35s ease both;
+}
+.form{
+  display:flex;gap:8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:100px;
+  padding:6px 6px 6px 22px;
+  backdrop-filter:blur(12px);
+  transition:border-color .3s,box-shadow .3s;
+}
+.form:focus-within{
+  border-color:rgba(139,92,246,.5);
+  box-shadow:0 0 32px rgba(139,92,246,.18);
+}
+.form input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:15px;color:var(--text);
+  font-family:'Space Grotesk',sans-serif;min-width:0;
+}
+.form input::placeholder{color:#4b5563}
+.sbtn{
+  background:linear-gradient(135deg,var(--gem),var(--gem2));
+  color:white;border:none;padding:12px 24px;border-radius:100px;
+  font-size:14px;font-weight:500;font-family:'Space Grotesk',sans-serif;
+  cursor:pointer;white-space:nowrap;
+  transition:opacity .2s,transform .2s;
+  box-shadow:0 0 20px rgba(139,92,246,.35);
+}
+.sbtn:hover{opacity:.9;transform:scale(1.02)}
+.fmeta{font-size:11px;color:#374151;margin-top:12px;letter-spacing:.04em}
+
+/* OCEAN */
+.ocean-ov{
+  position:fixed;inset:0;z-index:1000;
+  background:radial-gradient(ellipse at center, #0d1b4b 0%, #030b1a 50%, #000308 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .6s;
+}
+.ocean-ov.on{opacity:1;pointer-events:all}
+.ot{
+  font-family:'Cormorant',serif;font-size:clamp(32px,6vw,64px);font-weight:300;font-style:italic;
+  text-align:center;line-height:1.1;margin-bottom:12px;
+  background:linear-gradient(180deg,#e0e7ff,#93c5fd,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.8));background-clip:text;
+}
+.os{color:#374151;font-size:14px;letter-spacing:.05em;text-transform:uppercase}
+.bwrap{position:absolute;bottom:0;left:0;right:0;height:260px;overflow:hidden}
+.bub{
+  position:absolute;bottom:-50px;border-radius:50%;
+  background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);
+  animation:rise linear infinite;
+}
+@keyframes rise{0%{opacity:.7;transform:translateY(0)}100%{opacity:0;transform:translateY(-350px) scale(1.4)}}
+
+/* MARQUEE */
+.mq{
+  position:relative;z-index:2;
+  padding:32px 0;overflow:hidden;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:rgba(5,5,10,.5);
+}
+.mt{
+  display:flex;gap:48px;white-space:nowrap;
+  animation:mq 22s linear infinite;
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;font-weight:400;
+}
+.mt:hover{animation-play-state:paused}
+.mi{display:inline-flex;align-items:center;gap:12px;color:#4b5563}
+.mi b{color:#7c3aed;font-style:normal;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600}
+@keyframes mq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* GENERAL SECTION */
+.sec{position:relative;z-index:2;padding:100px 24px;max-width:1100px;margin:0 auto}
+.eye{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:17px;color:#6b7280;margin-bottom:12px;letter-spacing:.02em;
+}
+.sh{
+  font-family:'Cormorant',serif;
+  font-size:clamp(36px,5.5vw,68px);font-weight:300;
+  letter-spacing:-1px;line-height:1.0;margin-bottom:60px;
+}
+.sh em{font-style:italic;color:#a78bfa}
+
+/* CARDS */
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--border);border-radius:2px;
+  padding:36px 30px;
+  transition:border-color .4s,background .4s,transform .4s;
+  position:relative;
+}
+.card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(139,92,246,.04),transparent);
+  opacity:0;transition:opacity .4s;
+}
+.card:hover{border-color:rgba(139,92,246,.25);background:rgba(139,92,246,.03);transform:translateY(-3px)}
+.card:hover::after{opacity:1}
+.cnum{
+  font-family:'Cormorant',serif;font-size:52px;font-weight:300;font-style:italic;
+  color:rgba(139,92,246,.2);line-height:1;margin-bottom:20px;
+}
+.ch{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;margin-bottom:10px;letter-spacing:-.3px}
+.cp{font-size:14px;color:#6b7280;line-height:1.75}
+
+/* STEPS */
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.step{
+  border:1px solid var(--border);border-radius:2px;
+  padding:32px;background:var(--surface);
+  transition:border-color .3s;
+}
+.step:hover{border-color:rgba(34,211,238,.25)}
+.sn{
+  font-family:'Cormorant',serif;font-size:72px;font-weight:300;font-style:italic;
+  color:rgba(139,92,246,.1);line-height:1;margin-bottom:16px;
+}
+.step h3{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;margin-bottom:10px}
+.step p{font-size:14px;color:#6b7280;line-height:1.75}
+
+/* SCORE */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.sc{
+  border-radius:2px;padding:30px;
+  background:rgba(139,92,246,.04);
+  border:1px solid rgba(139,92,246,.12);
+  transition:border-color .3s,transform .3s;
+}
+.sc:hover{border-color:rgba(139,92,246,.35);transform:translateY(-3px)}
+.sv{
+  font-family:'Cormorant',serif;font-size:52px;font-weight:300;font-style:italic;
+  background:linear-gradient(135deg,#a78bfa,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.8));background-clip:text;
+  margin-bottom:8px;line-height:1;
+}
+.sc h4{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-bottom:5px}
+.sc p{font-size:13px;color:#6b7280;line-height:1.65}
+
+/* QUOTE */
+.qsec{position:relative;z-index:2;padding:80px 24px;display:flex;justify-content:center}
+.qcard{
+  max-width:680px;width:100%;
+  border:1px solid var(--border);border-radius:2px;padding:48px 52px;
+  background:var(--surface);position:relative;
+}
+.qmark{
+  font-family:'Cormorant',serif;font-size:180px;font-weight:300;font-style:italic;
+  color:rgba(139,92,246,.07);position:absolute;top:-30px;left:32px;line-height:1;
+}
+.qt{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(18px,2.5vw,25px);
+  font-style:italic;font-weight:400;line-height:1.6;margin-bottom:28px;position:relative;
+}
+.qs{display:flex;align-items:center;gap:14px}
+.qa{
+  width:40px;height:40px;border-radius:2px;
+  background:linear-gradient(135deg,var(--gem),var(--gem2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cormorant',serif;font-size:18px;font-weight:600;color:white;
+}
+.qm p:first-child{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600}
+.qm p:last-child{font-size:12px;color:#6b7280;letter-spacing:.03em}
+
+/* STATS */
+.stats{position:relative;z-index:2;padding:70px 24px;display:flex;justify-content:center}
+.sg2{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1px;max-width:800px;width:100%;
+  background:var(--border);border:1px solid var(--border);border-radius:2px;overflow:hidden;
+}
+.si{background:var(--bg);padding:40px 24px;text-align:center}
+.snum{
+  font-family:'Cormorant',serif;font-size:clamp(36px,5vw,56px);font-weight:300;font-style:italic;
+  background:linear-gradient(135deg,#a78bfa,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.8));background-clip:text;
+  margin-bottom:6px;
+}
+.slbl{font-size:12px;color:#6b7280;letter-spacing:.04em;line-height:1.5}
+
+/* PRICING */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:660px;margin:60px auto 0}
+.plan{
+  border:1px solid var(--border);border-radius:2px;padding:36px;
+  background:var(--surface);position:relative;transition:border-color .3s,transform .3s;
+}
+.plan:hover{transform:translateY(-4px)}
+.plan.hot{
+  border-color:rgba(139,92,246,.35);
+  background:rgba(139,92,246,.03);
+  box-shadow:0 0 60px rgba(139,92,246,.08);
+}
+.hbadge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--gem),var(--gem2));
+  color:white;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:5px 16px;border-radius:100px;white-space:nowrap;
+}
+.pp{
+  font-family:'Cormorant',serif;font-size:56px;font-weight:300;font-style:italic;
+  line-height:1;margin-bottom:4px;letter-spacing:-1px;
+}
+.pp sub{font-size:20px;font-weight:400;color:#6b7280;font-style:normal}
+.pt{font-size:11px;color:#6b7280;letter-spacing:.06em;text-transform:uppercase;margin-bottom:28px}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.plan li{font-size:14px;display:flex;align-items:flex-start;gap:10px;line-height:1.6;color:#d1d5db}
+.plan li::before{
+  content:'→';color:#7c3aed;font-weight:700;flex-shrink:0;margin-top:0px;
+  font-family:'Cormorant Garamond',serif;font-size:16px;
+}
+.pcta{
+  display:block;width:100%;text-align:center;padding:14px;border-radius:2px;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;border:1px solid rgba(255,255,255,.12);
+  color:var(--text);background:transparent;transition:all .2s;
+}
+.plan.hot .pcta{
+  background:linear-gradient(135deg,var(--gem),var(--gem2));
+  border-color:transparent;color:white;
+  box-shadow:0 0 24px rgba(139,92,246,.35);
+}
+.pcta:hover{opacity:.85}
+
+/* FINAL */
+.final{
+  position:relative;z-index:2;
+  padding:120px 24px;text-align:center;overflow:hidden;
+}
+.final::before{
+  content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(139,92,246,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.fh{
+  font-family:'Cormorant',serif;
+  font-size:clamp(42px,8vw,96px);font-weight:300;font-style:italic;
+  letter-spacing:-1.5px;line-height:.95;margin-bottom:20px;position:relative;
+}
+.fsub{font-size:15px;color:#6b7280;margin-bottom:48px;letter-spacing:.04em;position:relative}
+.ffwrap{max-width:480px;margin:0 auto;position:relative}
+
+/* SUCCESS */
+.succ{display:none;flex-direction:column;align-items:center;gap:16px}
+.succ.on{display:flex}
+.sucg{
+  font-family:'Cormorant',serif;font-size:80px;font-weight:300;font-style:italic;
+  background:linear-gradient(135deg,#a78bfa,#22d3ee);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.8));background-clip:text;
+  animation:pop .6s cubic-bezier(.175,.885,.32,1.275) both;line-height:1;
+}
+@keyframes pop{0%{opacity:0;transform:scale(.5)}100%{opacity:1;transform:scale(1)}}
+.suct{font-family:'Cormorant',serif;font-size:28px;font-weight:600;font-style:italic}
+.subs{font-size:13px;color:#6b7280;letter-spacing:.04em}
+
+/* FOOTER */
+footer{
+  position:relative;z-index:2;
+  padding:28px 48px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.fl{font-family:'Cormorant',serif;font-weight:600;font-size:20px;font-style:italic}
+footer p{font-size:11px;color:#374151;letter-spacing:.04em}
+
+/* REVEAL */
+.rev{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.rev.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  nav{padding:16px 20px}
+  .form{flex-direction:column;border-radius:12px;padding:14px}
+  .form input{text-align:center}
+  .sbtn{border-radius:10px}
+  footer{flex-direction:column;text-align:center}
+  .qcard{padding:28px}
+}
+</style>
+</head>
+<body>
+
+<!-- SVG WAVE FILTER -->
+<svg class="svg-filters" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="wave-filter" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015 0.08" numOctaves="3" seed="2" result="noise">
+        <animate attributeName="baseFrequency" values="0.015 0.08;0.02 0.06;0.015 0.08" dur="8s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- OCEAN OVERLAY -->
+<div class="ocean-ov" id="ocean">
+  <div class="bwrap" id="bubs"></div>
+  <div class="ot">You're diving in</div>
+  <div class="os">Securing your early access · · ·</div>
+</div>
+
+<!-- BLACK HOLE CANVAS -->
+<canvas id="bh"></canvas>
+<div class="overlay"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="logo-g">Creator</span><span style="color:#4b5563">Gem</span>
+  </div>
+  <a href="#join" class="nav-pill">Join waitlist</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="eyebrow"><div class="edot"></div>Early access · Founding member pricing</div>
+  <h1>
+    <span class="h1-sm">Find YouTube creators who actually</span>
+    <span class="vibes-wrap">
+      <span class="vibes-text">
+        <span class="vl">v</span><span class="vl">i</span><span class="vl">b</span><span class="vl">e</span><span class="vl">s</span>
+      </span>
+    </span>
+    <span class="h1-rest">with your brand</span>
+  </h1>
+  <p class="sub">Stop spending hours reviewing profiles.<br><strong>CreatorGem finds hidden YouTube channels</strong> that match your niche, your audience, and your brand's energy — not just good follower numbers.</p>
+
+  <div class="fw" id="join">
+    <form class="form" id="hf" onsubmit="go(event,'hs')">
+      <input type="email" placeholder="Enter your work email" required>
+      <button type="submit" class="sbtn">Get early access →</button>
+    </form>
+    <div class="succ" id="hs" style="margin-top:32px">
+      <div class="sucg">✦</div>
+      <div class="suct">You're on the list</div>
+      <div class="subs">Early access coming soon · We'll reach out</div>
+    </div>
+  </div>
+  <p class="fmeta" style="animation:fadeUp .9s .45s both">Free to join · No credit card · Founding member price locked</p>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq">
+  <div class="mt">
+    <span class="mi"><b>✦</b> Hidden gems before they blow up</span>
+    <span class="mi"><b>✦</b> Real engagement, not fake followers</span>
+    <span class="mi"><b>✦</b> Content vibe fit, not just numbers</span>
+    <span class="mi"><b>✦</b> Under 50K subscribers</span>
+    <span class="mi"><b>✦</b> Zero existing brand deals</span>
+    <span class="mi"><b>✦</b> Thirty seconds, not thirty hours</span>
+    <span class="mi"><b>✦</b> Hidden gems before they blow up</span>
+    <span class="mi"><b>✦</b> Real engagement, not fake followers</span>
+    <span class="mi"><b>✦</b> Content vibe fit, not just numbers</span>
+    <span class="mi"><b>✦</b> Under 50K subscribers</span>
+    <span class="mi"><b>✦</b> Zero existing brand deals</span>
+    <span class="mi"><b>✦</b> Thirty seconds, not thirty hours</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="sg2">
+    <div class="si rev"><div class="snum">$2.5K</div><div class="slbl">What Grin &amp; Aspire cost<br>per month</div></div>
+    <div class="si rev d1"><div class="snum">30s</div><div class="slbl">Time to get your<br>creator shortlist</div></div>
+    <div class="si rev d2"><div class="snum">3×</div><div class="slbl">Higher engagement from<br>micro-creators</div></div>
+    <div class="si rev d3"><div class="snum">$19</div><div class="slbl">CreatorGem founding<br>member price</div></div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="sec">
+  <div class="eye rev">The problem</div>
+  <h2 class="sh rev">Finding the right creator<br>takes <em>forever</em>. And still goes wrong.</h2>
+  <div class="g4">
+    <div class="card rev"><div class="cnum">01</div><div class="ch">Hours of manual searching</div><p class="cp">Thirty tabs. Twenty videos. Half a day for five options. That's not a strategy — that's survival mode.</p></div>
+    <div class="card rev d1"><div class="cnum">02</div><div class="ch">Wrong vibe, wasted budget</div><p class="cp">Great numbers, completely off-brand content style. You find out after paying ₹20,000 for a campaign that doesn't convert.</p></div>
+    <div class="card rev d2"><div class="cnum">03</div><div class="ch">Existing tools cost a fortune</div><p class="cp">Grin and Aspire start at $2,500/month. Built for enterprise marketing teams, not solo founders doing everything themselves.</p></div>
+    <div class="card rev d3"><div class="cnum">04</div><div class="ch">Cold emails disappear</div><p class="cp">Outdated email addresses. No replies. Or they quote ten times your budget. Dead ends at every turn.</p></div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="sec" style="background:linear-gradient(180deg,transparent,rgba(139,92,246,.025) 50%,transparent);max-width:100%;padding:100px 24px">
+<div style="max-width:1100px;margin:0 auto">
+  <div class="eye rev">How it works</div>
+  <h2 class="sh rev">Tell us your brand.<br>Get creators that actually <em>match</em>.</h2>
+  <div class="g3">
+    <div class="step rev"><div class="sn">I</div><h3>Describe your brand</h3><p>Your niche, your audience, the content vibe you're going for. Plain language — no complicated forms.</p></div>
+    <div class="step rev d1"><div class="sn">II</div><h3>We find the gems</h3><p>Under 50K subscribers. High engagement. Growing fast. Zero existing brand deals. Hidden before they blow up.</p></div>
+    <div class="step rev d2"><div class="sn">III</div><h3>Get your shortlist</h3><p>Ranked results with stats, vibe analysis, and contact info. No tabs. No spreadsheets. Thirty seconds.</p></div>
+    <div class="step rev d3"><div class="sn">IV</div><h3>Reach out and close</h3><p>Affordable. Hungry for deals. Audiences that trust what they say. Not yet saturated with sponsorships.</p></div>
+  </div>
+</div>
+</section>
+
+<!-- GEM SCORE -->
+<section class="sec">
+  <div class="eye rev">The gem score</div>
+  <h2 class="sh rev">Ranked by what actually<br><em>predicts results</em></h2>
+  <div class="sg">
+    <div class="sc rev"><div class="sv">3%+</div><h4>Engagement rate</h4><p>Views relative to subscribers. Real audience attention — not inflated numbers that look good on paper.</p></div>
+    <div class="sc rev d1"><div class="sv">Zero</div><h4>Brand deal history</h4><p>Few or no sponsorships means affordable rates and an audience that still trusts what they say.</p></div>
+    <div class="sc rev d2"><div class="sv">↑↑</div><h4>Growth velocity</h4><p>Growing fast but still small. Get in before their rates quadruple next quarter.</p></div>
+    <div class="sc rev d3"><div class="sv">✓</div><h4>Content vibe fit</h4><p>Does their content actually match your brand energy? We check so you don't watch thirty videos.</p></div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="qsec">
+  <div class="qcard rev">
+    <div class="qmark">"</div>
+    <div class="qt">"Searching for influencers has to be up there as one of the most time-consuming things about running a small brand. I've tried everything and nothing really works without spending hours anyway."</div>
+    <div class="qs">
+      <div class="qa">T</div>
+      <div class="qm">
+        <p>u/TaskLifter</p>
+        <p>R/SMALLBUSINESS · D2C BRAND FOUNDER</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec" style="text-align:center">
+  <div class="eye rev">Pricing</div>
+  <h2 class="sh rev" style="margin-bottom:0">Simple pricing.<br><em>No enterprise nonsense.</em></h2>
+  <div class="plans">
+    <div class="plan rev">
+      <div class="pp">Free</div>
+      <div class="pt">To start</div>
+      <ul>
+        <li>3 creator searches per month</li>
+        <li>Top 5 results per search</li>
+        <li>Gem Score for each creator</li>
+        <li>Basic contact info</li>
+      </ul>
+      <a href="#join" class="pcta">Get early access</a>
+    </div>
+    <div class="plan hot rev d1">
+      <div class="hbadge">Founding member rate</div>
+      <div class="pp">$19<sub>/mo</sub></div>
+      <div class="pt">Pro — price locked forever</div>
+      <ul>
+        <li>Unlimited searches</li>
+        <li>Top 20 results per search</li>
+        <li>Full Gem Score breakdown</li>
+        <li>Email + social contact info</li>
+        <li>Content vibe analysis</li>
+        <li>Founding price locked in forever</li>
+      </ul>
+      <a href="#join" class="pcta">Lock in $19/month</a>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <h2 class="fh rev">Stop searching.<br><em>Start finding.</em></h2>
+  <p class="fsub rev">Join the waitlist. Early access. Founding member pricing.</p>
+  <div class="ffwrap">
+    <form class="form rev" id="ff" onsubmit="go(event,'fs')">
+      <input type="email" placeholder="Your email address" required>
+      <button type="submit" class="sbtn">Join now →</button>
+    </form>
+    <div class="succ" id="fs" style="margin-top:32px">
+      <div class="sucg">✦</div>
+      <div class="suct">You're on the list</div>
+      <div class="subs">Early access coming soon</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fl">CreatorGem</div>
+  <p>BUILT FOR BRAND FOUNDERS WHO ARE TIRED OF THE MANUAL SEARCH</p>
+  <p>© 2026 CREATORGEM</p>
+</footer>
+
+<script>
+// ─── BLACK HOLE ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('bh');
+const ctx = canvas.getContext('2d');
+let W, H, t = 0;
+const stars = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Stars
+for (let i = 0; i < 200; i++) {
+  stars.push({
+    x: Math.random() * 2 - 1,
+    y: Math.random() * 2 - 1,
+    size: Math.random() * 1.5 + 0.2,
+    speed: Math.random() * 0.0003 + 0.00005,
+    angle: Math.random() * Math.PI * 2,
+    dist: Math.random() * 0.8 + 0.15,
+    opacity: Math.random() * 0.6 + 0.1,
+    twinkle: Math.random() * Math.PI * 2
+  });
+}
+
+function drawBlackHole(t) {
+  ctx.clearRect(0, 0, W, H);
+  const cx = W * 0.5, cy = H * 0.85;
+  const R = Math.min(W, H) * 0.12;
+
+  // Deep space bg — transparent so hero text stays readable
+  ctx.clearRect(0, 0, W, H);
+
+  // Accretion disk glow layers
+  const diskColors = [
+    { r: R * 3.5, a: 0.008, c: '#8b5cf6' },
+    { r: R * 2.8, a: 0.018, c: '#7c3aed' },
+    { r: R * 2.2, a: 0.04, c: '#a78bfa' },
+    { r: R * 1.9, a: 0.07, c: '#c4b5fd' },
+    { r: R * 1.65, a: 0.12, c: '#22d3ee' },
+    { r: R * 1.45, a: 0.18, c: '#f8fafc' },
+    { r: R * 1.3,  a: 0.25, c: '#ede9fe' },
+  ];
+
+  diskColors.forEach(({ r, a, c }) => {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(1, 0.25); // flatten into disk
+    const g = ctx.createRadialGradient(0, 0, R * 0.9, 0, 0, r);
+    g.addColorStop(0, c.replace(')', `,${a})`).replace('rgb', 'rgba').replace('#', '').length > 10 ? `rgba(0,0,0,0)` : `${c}${Math.round(a*255).toString(16).padStart(2,'0')}`);
+    g.addColorStop(0, `${c}${Math.round(a*255).toString(16).padStart(2,'0')}`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // Rotating hot gas in disk
+  for (let i = 0; i < 3; i++) {
+    const angle = t * (0.3 + i * 0.1) + i * Math.PI * 0.66;
+    const dr = R * (1.3 + i * 0.15);
+    const gx = cx + Math.cos(angle) * dr;
+    const gy = cy + Math.sin(angle) * dr * 0.25;
+    const hot = ctx.createRadialGradient(gx, gy, 0, gx, gy, R * 0.5);
+    hot.addColorStop(0, i === 0 ? 'rgba(200,180,255,0.15)' : i === 1 ? 'rgba(100,220,255,0.12)' : 'rgba(255,200,180,0.08)');
+    hot.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.ellipse(gx, gy, R * 0.5, R * 0.12, angle, 0, Math.PI * 2);
+    ctx.fillStyle = hot;
+    ctx.fill();
+  }
+
+  // Photon ring
+  ctx.save();
+  ctx.translate(cx, cy);
+  const photon = ctx.createRadialGradient(0, 0, R * 0.95, 0, 0, R * 1.15);
+  photon.addColorStop(0, 'rgba(255,255,255,0)');
+  photon.addColorStop(0.4, 'rgba(220,200,255,0.35)');
+  photon.addColorStop(0.7, 'rgba(180,160,255,0.12)');
+  photon.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.arc(0, 0, R * 1.15, 0, Math.PI * 2);
+  ctx.fillStyle = photon;
+  ctx.fill();
+  ctx.restore();
+
+  // Black hole center (event horizon)
+  const bh = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  bh.addColorStop(0, 'rgba(0,0,0,1)');
+  bh.addColorStop(0.7, 'rgba(0,0,0,1)');
+  bh.addColorStop(0.85, 'rgba(3,0,8,0.98)');
+  bh.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.fillStyle = bh;
+  ctx.fill();
+
+  // Gravitational lensing ring
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.strokeStyle = 'rgba(180,160,255,0.06)';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.arc(0, 0, R * (1.02 + i * 0.04), 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Stars pulled toward black hole
+  stars.forEach(s => {
+    s.angle += s.speed;
+    const sx = cx + Math.cos(s.angle) * s.dist * Math.min(W, H) * 0.45;
+    const sy = cy + Math.sin(s.angle) * s.dist * Math.min(W, H) * 0.2;
+    const twinkle = (Math.sin(t * 2 + s.twinkle) * 0.3 + 0.7);
+    const distFromCenter = Math.sqrt((sx - cx) ** 2 + (sy - cy) ** 2);
+    if (distFromCenter > R * 1.2) {
+      ctx.beginPath();
+      ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220,210,255,${s.opacity * twinkle * 0.7})`;
+      ctx.fill();
+    }
+  });
+
+  // Subtle jets (relativistic)
+  [0, Math.PI].forEach(dir => {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(dir + t * 0.005);
+    const jet = ctx.createLinearGradient(0, 0, 0, -R * 4);
+    jet.addColorStop(0, 'rgba(139,92,246,0.12)');
+    jet.addColorStop(0.5, 'rgba(99,102,241,0.04)');
+    jet.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.moveTo(-R * 0.08, 0);
+    ctx.lineTo(0, -R * 4);
+    ctx.lineTo(R * 0.08, 0);
+    ctx.fillStyle = jet;
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function animate() {
+  t += 0.008;
+  drawBlackHole(t);
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ─── SCROLL REVEAL ──────────────────────────────────────────────────────────
+const els = document.querySelectorAll('.rev');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1 });
+els.forEach(e => obs.observe(e));
+
+// ─── BUBBLES ────────────────────────────────────────────────────────────────
+function mkBubs() {
+  const c = document.getElementById('bubs');
+  c.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
+    const b = document.createElement('div');
+    b.classList.add('bub');
+    const sz = Math.random() * 60 + 10;
+    b.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${Math.random()*2+1.2}s;animation-delay:${Math.random()}s`;
+    c.appendChild(b);
+  }
+}
+
+// ─── FORM SUBMIT ────────────────────────────────────────────────────────────
+function go(e, sid) {
+  e.preventDefault();
+  const email = e.target.querySelector('input[type=email]').value;
+  const ocean = document.getElementById('ocean');
+  ocean.classList.add('on');
+  mkBubs();
+  setTimeout(() => {
+    ocean.classList.remove('on');
+    e.target.style.display = 'none';
+    document.getElementById(sid).classList.add('on');
+  }, 2800);
+
+  // ── CONNECT YOUR EMAIL COLLECTION ──
+  // OPTION 1 (easiest): Formspree.io
+  //   1. Go to formspree.io → sign up free
+  //   2. Create new form → copy the ID (e.g. xabcd1234)
+  //   3. Replace YOUR_FORMSPREE_ID below
+  //
+  // OPTION 2: Google Form
+  //   Use your Google Form's prefilled link action URL
+  //
+  fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ email, source: sid, page: 'creatorgem' })
+  }).catch(() => console.log('Waitlist signup:', email));
+}
+
+// ─── SMOOTH SCROLL ──────────────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+});
+</script>
+</body>
+</html>
