@@ -860,13 +860,13 @@ function go(e, sid) {
   // OPTION 2: Google Form
   //   Use your Google Form's prefilled link action URL
   //
-  fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+ fetch('https://formspree.io/f/mwvjypne', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({ email, source: sid, page: 'creatorgem' })
   }).catch(() => console.log('Waitlist signup:', email));
 }
-
+ 
 // ─── SMOOTH SCROLL ──────────────────────────────────────────────────────────
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
